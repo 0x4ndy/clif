@@ -4,6 +4,7 @@ use std::io::{prelude::*, BufReader};
 use std::path::Path;
 use std::process::Command;
 
+use crossterm::style::Stylize;
 use shellwords;
 
 #[derive(Default, Debug)]
@@ -24,12 +25,19 @@ impl FuzzerConfig {
     }
 }
 
+#[allow(dead_code)]
+#[derive(PartialEq)]
+enum ExecStatus {
+    OK,
+    ERR,
+}
+
 pub fn fuzz(fuzzer_config: &FuzzerConfig) -> Result<(), Box<dyn Error>> {
     let exec = process_exec(fuzzer_config.exec.clone())?;
 
     let args = match fuzzer_config.arguments.clone() {
         Some(value) => value,
-        None => String::from("Unable to read \"exec\" argument."),
+        None => String::from(""),
     };
 
     match process_wordlist(fuzzer_config.wordlist.clone()) {
@@ -56,7 +64,7 @@ fn process_exec(exec_option: Option<String>) -> Result<String, Box<dyn Error>> {
         None => {
             return Err(Box::new(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
-                format!("Unable to parse exec argument."),
+                format!("Unable to parse \"exec\" argument."),
             )));
         }
     };
@@ -70,7 +78,7 @@ fn process_wordlist(wordlist_option: Option<String>) -> Result<String, Box<dyn E
         None => {
             return Err(Box::new(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
-                format!(""),
+                format!("Unable to parse \"wordlist argument\"."),
             )));
         }
     };
@@ -81,12 +89,16 @@ fn process_wordlist(wordlist_option: Option<String>) -> Result<String, Box<dyn E
 fn build_arg_list(args: &str, fuzz_value: &str) -> Vec<String> {
     let mut arg_list: Vec<String> = Vec::new();
 
-    let new_args = args.replace("FUZZ", fuzz_value);
+    if arg_list.len() > 0 {
+        let new_args = args.replace("FUZZ", fuzz_value);
 
-    arg_list = match shellwords::split(&new_args) {
-        Ok(value) => value,
-        Err(_) => Vec::new(),
-    };
+        arg_list = match shellwords::split(&new_args) {
+            Ok(value) => value,
+            Err(_) => Vec::new(),
+        };
+    } else {
+        arg_list.push(String::from(fuzz_value));
+    }
 
     arg_list
 }
@@ -146,7 +158,7 @@ fn fuzz_string_range(
     let mut input: String;
 
     for n in (string_range.0..string_range.1).step_by(increment) {
-        input = "A".repeat(string_range.0 + n);
+        input = "\x41".repeat(string_range.0 + n);
         let arg_list = build_arg_list(args, &input);
         run_exec(exec, &arg_list)?;
     }
@@ -155,31 +167,47 @@ fn fuzz_string_range(
 }
 
 fn run_exec(exec: &str, arg_list: &Vec<String>) -> Result<(), Box<dyn Error>> {
-    let mut output: String;
+    let output: String;
+    let exec_status: ExecStatus;
 
-    println!("Running: {} {:?}", exec, arg_list);
-    /*
-        match Command::new(exec).args(arg_list).output() {
-            Ok(result) => {
-                if result.status.success() {
-                    // TODO: come up with a better way to indentify the status code
-                    // exec_status = ExecStatus::OK;
-                }
+    print_message(format!("Executing: \"{} {}\"", exec, arg_list.join(" ")));
 
-                output = if result.status.success() {
-                    String::from_utf8(result.stdout)?
-                } else {
-                    String::from_utf8(result.stderr)?
-                };
+    match Command::new(exec).args(arg_list).output() {
+        Ok(result) => {
+            if result.status.success() {
+                exec_status = ExecStatus::OK;
+                output = String::from_utf8(result.stdout)?
+            } else {
+                exec_status = ExecStatus::ERR;
+                output = String::from_utf8(result.stderr)?
             }
-            Err(e) => {
-                //exec_status = ExecStatus::ERR;
-                output = e.to_string();
-            }
-        };
-    */
-    // TODO: handle errors properly, include exit codes and color-coding
-    //   println!("{}", output);
+        }
+        Err(e) => {
+            exec_status = ExecStatus::ERR;
+            output = e.to_string();
+        }
+    };
+
+    print_exec_results(output, exec_status);
 
     Ok(())
+}
+
+fn print_exec_results(output: String, exec_status: ExecStatus) {
+    match exec_status {
+        ExecStatus::OK => print_message_ok(output),
+        ExecStatus::ERR => print_message_err(output),
+    }
+}
+
+fn print_message(output: String) {
+    println!("[+] {}", output);
+}
+
+fn print_message_ok(output: String) {
+    println!("{} {}", "[OK]".green(), output);
+}
+
+fn print_message_err(output: String) {
+    println!("{} {}", "[ERR]".red(), output);
 }

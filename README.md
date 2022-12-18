@@ -1,5 +1,5 @@
 # clif
-`clif` is a CLI Fuzzer. 
+`clif` is a CLI fuzzer. 
 
 # Usage
 ```bash

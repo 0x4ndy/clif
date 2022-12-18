@@ -4,6 +4,7 @@ mod fuzzer;
 use std::error::Error;
 
 use args::Args;
+use crossterm::style::Stylize;
 use fuzzer::FuzzerConfig;
 
 pub fn run() -> Result<(), Box<dyn Error>> {
@@ -15,6 +16,8 @@ pub fn run() -> Result<(), Box<dyn Error>> {
     };
 
     let fuzzer_config = args_to_fuzzer_config(&args)?;
+
+    print_figlet();
 
     fuzzer::fuzz(&fuzzer_config)
 }
@@ -94,4 +97,35 @@ fn string_to_range(s: &str) -> Result<(i128, i128), Box<dyn Error>> {
     }
 
     Ok(range)
+}
+
+fn print_figlet() {
+    let figlet_1 = r#"
+                              ____ _     ___ _____
+                             / ___| |   |_ _|  ___|
+                            | |   | |    | || |_
+                            | |___| |___ | ||  _|
+                             \____|_____|___|_|
+"#;
+
+    let figlet_2 = r#"
+                                                    _       _ _
+       ___ ___  _ __ ___  _ __ ___   __ _ _ __   __| |     | (_)_ __   ___
+      / __/ _ \| '_ ` _ \| '_ ` _ \ / _` | '_ \ / _` |_____| | | '_ \ / _ \
+     | (_| (_) | | | | | | | | | | | (_| | | | | (_| |_____| | | | | |  __/
+      \___\___/|_| |_| |_|_| |_| |_|\__,_|_| |_|\__,_|     |_|_|_| |_|\___|"#;
+
+    let figlet_3 = r#"
+                            __
+                           / _|_   _ ___________ _ __
+                          | |_| | | |_  /_  / _ \ '__|
+                          |  _| |_| |/ / / /  __/ |
+                          |_|  \__,_/___/___\___|_|
+
+
+"#;
+
+    print!("{}", figlet_1.red());
+    print!("{}", figlet_2.green());
+    print!("{}", figlet_3.blue());
 }
