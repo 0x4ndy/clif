@@ -1,3 +1,6 @@
+![](https://andy.codes/assets/img/clif/clif_demo.png)
+
+
 # clif
 `clif` is a CLI fuzzer. 
 
@@ -28,4 +31,6 @@ clif -e my_program -s 10..100
 ```
 
 # Demo
+In this demo, CLIF is used to fuzz an application that is vulnerable to BOF when processing its input arguments.
+
 ![](https://andy.codes/assets/img/clif/clif_demo.gif)
