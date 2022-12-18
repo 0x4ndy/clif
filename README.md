@@ -26,3 +26,6 @@ clif -e my_program -n 100..100000000 -a "-n FUZZ"
 # throw a string with length from range 10..100 as the first argument
 clif -e my_program -s 10..100 
 ```
+
+# Demo
+![](https://andy.codes/assets/img/clif/clif_demo.gif)
