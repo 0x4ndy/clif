@@ -31,6 +31,6 @@ clif -e my_program -s 10..100
 ```
 
 # Demo
-In this demo, CLIF is used to fuzz an application that is vulnerable to BOF when processing its input arguments.
+In this demo, CLIF is used to fuzz an application that is vulnerable to BOF when processing its input arguments - if the argument is longer than 10 characters, the application crashes.
 
 ![](https://andy.codes/assets/img/clif/clif_demo.gif)
