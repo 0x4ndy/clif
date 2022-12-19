@@ -2,7 +2,7 @@
 
 
 # clif
-`clif` is a CLI fuzzer. 
+`clif` is a command-line (CLI) fuzzer. 
 
 # Usage
 ```bash
