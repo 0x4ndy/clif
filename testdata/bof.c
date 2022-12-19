@@ -1,4 +1,7 @@
-// This is an example application vulnerable to BOF and crashes when a supplied argument is longer than 10 characters.
+/*
+ * This is an example application vulnerable to BOF and 
+ * crashes when a supplied argument is longer than 10 characters.
+ */
 
 #include <stdio.h>
 #include <string.h>
