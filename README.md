@@ -1,6 +1,5 @@
 ![](https://andy.codes/assets/img/clif/clif_demo.png)
 
-
 # clif
 `clif` is a command-line interface (CLI) application fuzzer, pretty much what `wfuzz` or `ffuf` are for web. It was inspired by `sudo` vulnerability `CVE-2021-3156` and the fact that for some reasons, Google's `afl-fuzz` doesn't allow for unlimited argument or option specification.
 
